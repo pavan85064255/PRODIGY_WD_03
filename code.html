@@ -1,29 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Tic-Tac-Toe</title>
   <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<title>Tic-Tac-Toe</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+  }
+  h1 {
+    color: #004080;
+    margin-bottom: 20px;
+  }
+  #game {
+    text-align: center;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .cell {
+    background: white;
+    border: 2px solid #004080;
+    font-size: 3rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .cell:hover {
+    background-color: #cce4ff;
+  }
+  #status {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    height: 24px;
+    color: #004080;
+  }
+  #restartBtn {
+    padding: 10px 20px;
+    background-color: #004080;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  #restartBtn:hover {
+    background-color: #0066cc;
+  }
+</style>
 </head>
 <body>
-  <h1>Tic-Tac-Toe</h1>
-  <div id="game">
-    <div class="board" id="board">
-      <!-- 9 cells -->
-      <div class="cell" data-index="0"></div>
-      <div class="cell" data-index="1"></div>
-      <div class="cell" data-index="2"></div>
-      <div class="cell" data-index="3"></div>
-      <div class="cell" data-index="4"></div>
-      <div class="cell" data-index="5"></div>
-      <div class="cell" data-index="6"></div>
-      <div class="cell" data-index="7"></div>
-      <div class="cell" data-index="8"></div>
-    </div>
-    <div id="status"></div>
-    <button id="restartBtn">Restart Game</button>
+<script src="script.js"></script>
+<h1>Tic-Tac-Toe</h1>
+<div id="game">
+  <div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
   </div>
+  <div id="status"></div>
+  <button id="restartBtn">Restart Game</button>
+</div>
 
-  <script src="script.js"></script>
+<script>
+  const board = document.getElementById('board');
+  const cells = document.querySelectorAll('.cell');
+  const statusDiv = document.getElementById('status');
+  const restartBtn = document.getElementById('restartBtn');
+
+  let boardState = ["", "", "", "", "", "", "", "", ""];
+  let currentPlayer = "X";
+  let isGameActive = true;
+
+  const winningConditions = [
+    [0,1,2], [3,4,5], [6,7,8],
+    [0,3,6], [1,4,7], [2,5,8],
+    [0,4,8], [2,4,6]
+  ];
+
+  function handleCellClick(e) {
+    const clickedCell = e.target;
+    const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+    if (boardState[clickedIndex] !== "" || !isGameActive) {
+      return;
+    }
+
+    updateCell(clickedCell, clickedIndex);
+    checkResult();
+  }
+
+  function updateCell(cell, index) {
+    boardState[index] = currentPlayer;
+    cell.textContent = currentPlayer;
+  }
+
+  function checkResult() {
+    let roundWon = false;
+
+    for (let condition of winningConditions) {
+      const [a, b, c] = condition;
+      if (
+        boardState[a] !== "" &&
+        boardState[a] === boardState[b] &&
+        boardState[b] === boardState[c]
+      ) {
+        roundWon = true;
+        break;
+      }
+    }
+
+    if (roundWon) {
+      statusDiv.textContent = `Player ${currentPlayer} wins! 🎉`;
+      isGameActive = false;
+      return;
+    }
+
+    if (!boardState.includes("")) {
+      statusDiv.textContent = `It's a draw! 🤝`;
+      isGameActive = false;
+      return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+  }
+
+  function restartGame() {
+    boardState = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    isGameActive = true;
+    statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+    cells.forEach(cell => cell.textContent = "");
+  }
+
+  statusDiv.textContent = `Player ${currentPlayer}'s turn`;
+
+  cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+  restartBtn.addEventListener('click', restartGame);
+</script>
+
 </body>
 </html>
